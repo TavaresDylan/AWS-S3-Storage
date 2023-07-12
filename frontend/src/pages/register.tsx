@@ -1,13 +1,16 @@
 import { FC, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const RegisterForm: FC = () => {
+  const auth = useAuth();
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const res = auth.signUp(email, email, password);
     console.log(`submit : ${username} ${email}`);
   };
 
@@ -20,7 +23,7 @@ const RegisterForm: FC = () => {
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value)
+    setPassword(e.target.value);
   };
 
   return (
