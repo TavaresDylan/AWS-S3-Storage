@@ -71,7 +71,7 @@ const useProvideAuth = (): UseAuth => {
     }
   }, []);
 
-  const signUp = async (username: string, email: string, password: string) => {
+  const signUp = async (username: string, email: string, password: string): Promise<Result> => {
     const dataEmail = {
       Name: "email",
       Value: email,
@@ -86,24 +86,29 @@ const useProvideAuth = (): UseAuth => {
       new CognitoUserAttribute(dataUsername),
       new CognitoUserAttribute(dataEmail),
     ];
-    try {
-      userPool.signUp(username, password, attributeList, [], (err, data) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log(data);
-      });
-      return {
-        success: true,
-        message: "SIGNUP SUCCESS",
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: "SIGNUP FAIL",
-      };
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        userPool.signUp(email, password, attributeList, [], (err, data) => {
+          if (err) {
+            console.error(err.message);
+            reject({
+              success: false,
+              message: err.name,
+            });
+          } else {
+            resolve({
+              success: true,
+              message: "SIGNUP SUCCESS",
+            });
+          }
+        });
+      } catch (error) {
+        return {
+          success: false,
+          message: "SIGNUP FAIL",
+        };
+      }
+    });
   };
 
   const confirmSignUp = async (username: string, code: string) => {
@@ -130,7 +135,10 @@ const useProvideAuth = (): UseAuth => {
   };
 
   // TODO: if not already confirmed, ask to confirm
-  const signIn = async (username: string, password: string): Promise<Result> => {
+  const signIn = async (
+    username: string,
+    password: string
+  ): Promise<Result> => {
     const authenticationData = {
       Username: username,
       Password: password,
@@ -145,13 +153,13 @@ const useProvideAuth = (): UseAuth => {
       try {
         cognitoUser.authenticateUser(authenticationDetails, {
           onSuccess: (session) => {
-            console.log(session)
+            console.log(session);
             setIsAuthenticated(true);
             setUsername(username);
             resolve({ success: true, message: "SIGNIN SUCCESS" });
           },
           onFailure: (err) => {
-            console.error(err)
+            console.error(err);
             setIsAuthenticated(false);
             reject({ success: false, message: err.message });
           },

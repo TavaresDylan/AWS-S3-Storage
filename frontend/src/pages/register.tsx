@@ -13,15 +13,24 @@ const RegisterForm: FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // TODO: add form validation
-    const res = auth.signUp(email, email, password);
-    if (res) {
-      res.then((data) => {
+    auth
+      .signUp(username, email, password)
+      .then((data) => {
         if (data.success) {
+          handleResetForm();
           setOtpStatus(true);
         }
+      })
+      .catch((error) => {
+        console.error(error);
       });
-    }
     console.log(`submit : ${username} ${email}`);
+  };
+
+  const handleResetForm = () => {
+    setUsername("");
+    setEmail("");
+    setPassword("");
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,47 +47,54 @@ const RegisterForm: FC = () => {
 
   const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const res = auth.confirmSignUp(email, otpValue);
-    if (res) {
-      res.then((data) => {
-        if (data.success) {
-          // TODO: redirect to login or directly to dashboard page
-        }
-      });
-    }
+    auth.confirmSignUp(email, otpValue).then((data) => {
+      if (data.success) {
+        // TODO: redirect to login or directly to dashboard page
+      }
+    });
   };
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-sky-200">
       <div className="form-container border border-black rounded-lg p-6 bg-slate-100">
         <h1 className="font-bold text-4xl mb-6 text-center">Sign up</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <input
-            className="rounded-2xl border border-black p-2"
-            type="text"
-            placeholder="Username"
-            onChange={handleUsernameChange}
-          />
-          <input
-            className="rounded-2xl border border-black p-2"
-            type="email"
-            placeholder="Email"
-            onChange={handleEmailChange}
-          />
-          <input
-            className="rounded-2xl border border-black p-2"
-            type="password"
-            placeholder="Password"
-            onChange={handlePasswordChange}
-          />
-          <input
-            className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
-            type="submit"
-            value="Sign up"
-          />
-        </form>
-
-        {otpStatus && (
+        {!otpStatus ? (
+          <>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+              <input
+                className="rounded-2xl border border-black p-2"
+                type="text"
+                placeholder="Username"
+                onChange={handleUsernameChange}
+              />
+              <input
+                className="rounded-2xl border border-black p-2"
+                type="email"
+                placeholder="Email"
+                onChange={handleEmailChange}
+              />
+              <input
+                className="rounded-2xl border border-black p-2"
+                type="password"
+                placeholder="Password"
+                onChange={handlePasswordChange}
+              />
+              <input
+                className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
+                type="submit"
+                value="Sign up"
+              />
+            </form>
+            <div className="mt-6">
+              <p>
+                Already have an account ?{" "}
+                <Link className="text-blue-500 hover:text-blue-600" to="/login">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </>
+        ) : (
           <form className="mt-4 flex flex-col gap-2" onSubmit={handleOtpSubmit}>
             <label htmlFor="otp">Confirmation code</label>
             <input
@@ -93,14 +109,6 @@ const RegisterForm: FC = () => {
             />
           </form>
         )}
-        <div className="mt-6">
-          <p>
-            Already have an account ?{" "}
-            <Link className="text-blue-500 hover:text-blue-600" to="/login">
-              Sign in
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
