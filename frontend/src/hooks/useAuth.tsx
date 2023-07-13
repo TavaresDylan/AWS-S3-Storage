@@ -28,7 +28,7 @@ interface UseAuth {
   signOut: () => Promise<Result>;
 }
 
-interface Result {
+export interface Result {
   success: boolean;
   message: string;
 }
@@ -129,7 +129,8 @@ const useProvideAuth = (): UseAuth => {
     }
   };
 
-  const signIn = async (username: string, password: string) => {
+  // TODO: if not already confirmed, ask to confirm
+  const signIn = async (username: string, password: string): Promise<Result> => {
     const authenticationData = {
       Username: username,
       Password: password,
@@ -140,26 +141,29 @@ const useProvideAuth = (): UseAuth => {
       Pool: userPool,
     };
     const cognitoUser = new CognitoUser(userData);
-    try {
-      cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-          console.log(result);
-          setIsAuthenticated(true);
-          setUsername(username);
-        },
-        onFailure: (err) => {
-          console.error(err);
-          setIsAuthenticated(false);
-        },
-      });
-      return { success: true, message: "SIGNIN SUCCESS" };
-    } catch (error) {
-      console.error(error);
-      return {
-        success: false,
-        message: "SIGNIN FAIL",
-      };
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        cognitoUser.authenticateUser(authenticationDetails, {
+          onSuccess: (session) => {
+            console.log(session)
+            setIsAuthenticated(true);
+            setUsername(username);
+            resolve({ success: true, message: "SIGNIN SUCCESS" });
+          },
+          onFailure: (err) => {
+            console.error(err)
+            setIsAuthenticated(false);
+            reject({ success: false, message: err.message });
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return {
+          success: false,
+          message: "SIGNIN FAIL",
+        };
+      }
+    });
   };
 
   const signOut = async () => {

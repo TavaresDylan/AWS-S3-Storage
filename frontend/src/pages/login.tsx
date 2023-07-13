@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { Result, useAuth } from "../hooks/useAuth";
 
 const LoginPage: FC = () => {
   const navigate = useNavigate();
@@ -8,17 +8,20 @@ const LoginPage: FC = () => {
 
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(`submit : ${username}`);
-    const res = auth.signIn(username, password);
-    if (res) {
-      res.then((data) => {
-        if (data.success) {
-          navigate("/dashboard");
-        }
+    try{
+      auth.signIn(username, password).then(() => {
+        navigate("/dashboard");
+      }).catch((err: Result) => {
+          console.log("error signin : ", err);
+          setError(err.message);
       });
+    } catch (err) {
+      console.log("error signin : ", err);
     }
   };
 
@@ -47,6 +50,7 @@ const LoginPage: FC = () => {
             placeholder="Password"
             onChange={handlePasswordChange}
           />
+          {error && <p className="text-red-600">{error}</p>}
           <input
             className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
             type="submit"
