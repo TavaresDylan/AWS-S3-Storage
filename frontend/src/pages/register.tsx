@@ -66,18 +66,28 @@ const RegisterForm: FC = () => {
                 type="text"
                 placeholder="Username"
                 onChange={handleUsernameChange}
+                name="username"
               />
               <input
                 className="rounded-2xl border border-black p-2"
                 type="email"
                 placeholder="Email"
                 onChange={handleEmailChange}
+                name="email"
               />
               <input
                 className="rounded-2xl border border-black p-2"
                 type="password"
                 placeholder="Password"
                 onChange={handlePasswordChange}
+                name="password"
+              />
+              <input
+                className="rounded-2xl border border-black p-2"
+                type="password"
+                placeholder="Password confirmation"
+                onChange={handlePasswordChange}
+                name="passwordConfirm"
               />
               <input
                 className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
