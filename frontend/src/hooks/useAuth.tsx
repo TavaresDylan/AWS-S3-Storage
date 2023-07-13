@@ -25,6 +25,7 @@ interface UseAuth {
   ) => Promise<Result>;
   confirmSignUp: (username: string, code: string) => Promise<Result>;
   signIn: (username: string, password: string) => Promise<Result>;
+  signOut: () => Promise<Result>;
 }
 
 interface Result {
@@ -161,6 +162,27 @@ const useProvideAuth = (): UseAuth => {
     }
   };
 
+  const signOut = async () => {
+    const currentUser = userPool.getCurrentUser();
+    if (!currentUser) {
+      return {
+        success: true,
+        message: "ALREADY SIGNOUT",
+      };
+    }
+    try {
+      currentUser.signOut();
+      setIsAuthenticated(false);
+      setUsername("");
+      return { success: true, message: "SIGNOUT SUCCESS" };
+    } catch (error) {
+      return {
+        success: false,
+        message: "SIGNOUT FAIL",
+      };
+    }
+  };
+
   return {
     isLoading,
     isAuthenticated,
@@ -168,5 +190,6 @@ const useProvideAuth = (): UseAuth => {
     signUp,
     confirmSignUp,
     signIn,
+    signOut,
   };
 };

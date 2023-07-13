@@ -1,13 +1,21 @@
 import { FC } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import "./styles.css";
+import { useAuth } from "../hooks/useAuth";
 
 const AuthentifiedLayout: FC = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const handelDisconnect = () => {
-    console.log("disconnect");
-    navigate("/login");
+    const res = auth.signOut();
+    if (res) {
+      res.then((data) => {
+        if (data.success) {
+          navigate("/login");
+        }
+      });
+    }
   };
 
   return (
