@@ -1,4 +1,5 @@
 import {
+  CognitoUser,
   CognitoUserAttribute,
   CognitoUserPool,
   ICognitoUserPoolData,
@@ -21,6 +22,7 @@ interface UseAuth {
     email: string,
     password: string
   ) => Promise<Result>;
+  confirmSignUp: (username: string, code: string) => Promise<any>;
 }
 
 interface Result {
@@ -89,11 +91,34 @@ const useProvideAuth = (): UseAuth => {
         }
         console.log(data);
       });
-      return { success: true, message: "" };
+      return { success: true, message: "SIGNUP SUCCESS" };
     } catch (error) {
       return {
         success: false,
         message: "SIGNUP FAIL",
+      };
+    }
+  };
+
+  const confirmSignUp = async (username: string, code: string) => {
+    const userData = {
+      Username: username,
+      Pool: userPool,
+    };
+    const cognitoUser = new CognitoUser(userData);
+    try {
+      cognitoUser.confirmRegistration(code, true, (err, result) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log(result);
+        return { success: true, message: "CONFIRM SUCCESS" };
+      });
+    } catch (error) {
+      return {
+        success: false,
+        message: "CONFIRM FAIL",
       };
     }
   };
@@ -103,5 +128,6 @@ const useProvideAuth = (): UseAuth => {
     isAuthenticated,
     username,
     signUp,
+    confirmSignUp,
   };
 };

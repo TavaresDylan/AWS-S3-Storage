@@ -7,10 +7,20 @@ const RegisterForm: FC = () => {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [otpStatus, setOtpStatus] = useState<boolean>(false);
+  const [otpValue, setOtpValue] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // TODO: add form validation
     const res = auth.signUp(email, email, password);
+    if (res) {
+      res.then((data) => {
+        if (data.success) {
+          setOtpStatus(true);
+        }
+      });
+    }
     console.log(`submit : ${username} ${email}`);
   };
 
@@ -24,6 +34,18 @@ const RegisterForm: FC = () => {
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+  };
+
+  const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const res = auth.confirmSignUp(email, otpValue);
+    if (res) {
+      res.then((data) => {
+        if (data.success) {
+          // TODO: redirect to login or directly to dashboard page
+        }
+      });
+    }
   };
 
   return (
@@ -55,6 +77,22 @@ const RegisterForm: FC = () => {
             value="Sign up"
           />
         </form>
+
+        {otpStatus && (
+          <form className="mt-4 flex flex-col gap-2" onSubmit={handleOtpSubmit}>
+            <label htmlFor="otp">Confirmation code</label>
+            <input
+              className="rounded-2xl border border-black p-2"
+              onChange={(event) => setOtpValue(event.target.value)}
+              type="text"
+              name="otp"
+            />
+            <input
+              className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
+              type="submit"
+            />
+          </form>
+        )}
         <div className="mt-6">
           <p>
             Already have an account ?{" "}
