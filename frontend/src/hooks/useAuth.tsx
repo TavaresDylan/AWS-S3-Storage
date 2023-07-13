@@ -1,4 +1,5 @@
 import {
+  AuthenticationDetails,
   CognitoUser,
   CognitoUserAttribute,
   CognitoUserPool,
@@ -22,7 +23,8 @@ interface UseAuth {
     email: string,
     password: string
   ) => Promise<Result>;
-  confirmSignUp: (username: string, code: string) => Promise<any>;
+  confirmSignUp: (username: string, code: string) => Promise<Result>;
+  signIn: (username: string, password: string) => Promise<Result>;
 }
 
 interface Result {
@@ -91,7 +93,10 @@ const useProvideAuth = (): UseAuth => {
         }
         console.log(data);
       });
-      return { success: true, message: "SIGNUP SUCCESS" };
+      return {
+        success: true,
+        message: "SIGNUP SUCCESS",
+      };
     } catch (error) {
       return {
         success: false,
@@ -113,12 +118,45 @@ const useProvideAuth = (): UseAuth => {
           return;
         }
         console.log(result);
-        return { success: true, message: "CONFIRM SUCCESS" };
       });
+      return { success: true, message: "CONFIRM SUCCESS" };
     } catch (error) {
       return {
         success: false,
         message: "CONFIRM FAIL",
+      };
+    }
+  };
+
+  const signIn = async (username: string, password: string) => {
+    const authenticationData = {
+      Username: username,
+      Password: password,
+    };
+    const authenticationDetails = new AuthenticationDetails(authenticationData);
+    const userData = {
+      Username: username,
+      Pool: userPool,
+    };
+    const cognitoUser = new CognitoUser(userData);
+    try {
+      cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+          console.log(result);
+          setIsAuthenticated(true);
+          setUsername(username);
+        },
+        onFailure: (err) => {
+          console.error(err);
+          setIsAuthenticated(false);
+        },
+      });
+      return { success: true, message: "SIGNIN SUCCESS" };
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        message: "SIGNIN FAIL",
       };
     }
   };
@@ -129,5 +167,6 @@ const useProvideAuth = (): UseAuth => {
     username,
     signUp,
     confirmSignUp,
+    signIn,
   };
 };

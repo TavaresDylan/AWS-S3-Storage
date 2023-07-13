@@ -1,8 +1,10 @@
 import { FC, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const LoginPage: FC = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -10,7 +12,14 @@ const LoginPage: FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(`submit : ${username}`);
-    navigate("/dashboard");
+    const res = auth.signIn(username, password);
+    if (res) {
+      res.then((data) => {
+        if (data.success) {
+          navigate("/dashboard");
+        }
+      });
+    }
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,7 +27,7 @@ const LoginPage: FC = () => {
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value)
+    setPassword(e.target.value);
   };
 
   return (
