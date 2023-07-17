@@ -44,6 +44,26 @@ const RegisterForm: FC = () => {
     }
   };
 
+  const updateFormError = (
+    field: string,
+    message: string,
+    successStatus: boolean
+  ) => {
+    let newFormErrors = formErrors?.map((key) => {
+      if (key.field === field) {
+        return {
+          ...key,
+          validatorResult: {
+            success: successStatus,
+            message: message,
+          },
+        };
+      }
+      return key;
+    });
+    setFormErrors(newFormErrors);
+  };
+
   const isFormValid = (): boolean => {
     const isValid = validator.passwordMatch(password, confirmPassword);
     const isValidEmail = validator.emailValidation(email);
@@ -87,20 +107,40 @@ const RegisterForm: FC = () => {
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isValidUsername = validator.lengthValidation(e.target.value, 3, 20);
+    updateFormError(
+      "username",
+      isValidUsername.message,
+      isValidUsername.success
+    );
     setUsername(e.target.value);
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isValidEmail = validator.emailValidation(e.target.value);
+    updateFormError("email", isValidEmail.message, isValidEmail.success);
     setEmail(e.target.value);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isValidPassword = validator.passwordValidation(e.target.value);
+    updateFormError(
+      "password",
+      isValidPassword.message,
+      isValidPassword.success
+    );
     setPassword(e.target.value);
   };
 
   const handleConfirmPasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const isPasswordsMatch = validator.passwordMatch(password, e.target.value);
+    updateFormError(
+      "passwordConfirm",
+      isPasswordsMatch.message,
+      isPasswordsMatch.success
+    );
     setConfirmPassword(e.target.value);
   };
 
