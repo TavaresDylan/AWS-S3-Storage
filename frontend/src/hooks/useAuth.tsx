@@ -98,7 +98,7 @@ const useProvideAuth = (): UseAuth => {
             console.error(err.message);
             reject({
               success: false,
-              message: err.name,
+              message: err.message,
             });
           } else {
             resolve({
@@ -116,30 +116,33 @@ const useProvideAuth = (): UseAuth => {
     });
   };
 
-  const confirmSignUp = async (username: string, code: string) => {
+  const confirmSignUp = async (
+    username: string,
+    code: string
+  ): Promise<Result> => {
     const userData = {
       Username: username,
       Pool: userPool,
     };
     const cognitoUser = new CognitoUser(userData);
-    try {
-      cognitoUser.confirmRegistration(code, true, (err, result) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log(result);
-      });
-      return { success: true, message: "CONFIRM SUCCESS" };
-    } catch (error) {
-      return {
-        success: false,
-        message: "CONFIRM FAIL",
-      };
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        cognitoUser.confirmRegistration(code, true, (err, _) => {
+          if (err) {
+            console.error(err);
+            return reject({ success: false, message: err.message });
+          }
+          return resolve({ success: true, message: "CONFIRM SUCCESS" });
+        });
+      } catch (error) {
+        return {
+          success: false,
+          message: "CONFIRM FAIL",
+        };
+      }
+    });
   };
 
-  // TODO: if not already confirmed, ask to confirm
   const signIn = async (
     username: string,
     password: string
@@ -208,7 +211,7 @@ const useProvideAuth = (): UseAuth => {
     const cognitoUser = new CognitoUser(userData);
 
     return new Promise((resolve, reject) => {
-      cognitoUser.resendConfirmationCode((err, result) => {
+      cognitoUser.resendConfirmationCode((err, result: ClientMetadata) => {
         if (err) {
           console.error(err);
           reject({ success: false, message: err.message });
