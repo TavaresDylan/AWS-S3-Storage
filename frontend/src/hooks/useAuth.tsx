@@ -26,6 +26,7 @@ interface UseAuth {
   confirmSignUp: (username: string, code: string) => Promise<Result>;
   signIn: (username: string, password: string) => Promise<Result>;
   signOut: () => Promise<Result>;
+  resendConfirmationCode: (username: string) => Promise<Result>;
 }
 
 export interface Result {
@@ -71,7 +72,11 @@ const useProvideAuth = (): UseAuth => {
     }
   }, []);
 
-  const signUp = async (username: string, email: string, password: string): Promise<Result> => {
+  const signUp = async (
+    username: string,
+    email: string,
+    password: string
+  ): Promise<Result> => {
     const dataEmail = {
       Name: "email",
       Value: email,
@@ -195,6 +200,25 @@ const useProvideAuth = (): UseAuth => {
     }
   };
 
+  const resendConfirmationCode = async (username: string): Promise<Result> => {
+    const userData = {
+      Username: username,
+      Pool: userPool,
+    };
+    const cognitoUser = new CognitoUser(userData);
+
+    return new Promise((resolve, reject) => {
+      cognitoUser.resendConfirmationCode((err, result) => {
+        if (err) {
+          console.error(err);
+          reject({ success: false, message: err.message });
+        }
+        console.log(result);
+        resolve({ success: true, message: "RESEND CONFIRMATION CODE SUCCESS" });
+      });
+    });
+  };
+
   return {
     isLoading,
     isAuthenticated,
@@ -203,5 +227,6 @@ const useProvideAuth = (): UseAuth => {
     confirmSignUp,
     signIn,
     signOut,
+    resendConfirmationCode,
   };
 };

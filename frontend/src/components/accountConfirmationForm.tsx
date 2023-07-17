@@ -25,6 +25,12 @@ const AccountConfirmationForm: FC<AccountConfirmationFormProps> = ({
     });
   };
 
+  const handleResendConfirmationCode = () => {
+    auth.resendConfirmationCode(email).then((data) => {
+      console.log("resend confirmation code : ", data);
+    });
+  };
+
   return (
     <div>
       <form className="mt-4 flex flex-col gap-2" onSubmit={handleOtpSubmit}>
@@ -38,6 +44,7 @@ const AccountConfirmationForm: FC<AccountConfirmationFormProps> = ({
         <input
           className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
           value={"Re-send code"}
+          onClick={handleResendConfirmationCode}
           type="button"
         />
         <input
