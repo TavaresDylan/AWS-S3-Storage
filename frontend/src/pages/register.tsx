@@ -3,21 +3,30 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import useValidator, { ValidatorResult } from "../hooks/useValidator";
 
-type formValidatorErrors = {
+type FormValidatorErrors = {
   field: string;
   validatorResult: ValidatorResult;
 };
 
+type FormValues = {
+  type: string;
+  name: string;
+  placeholder: string;
+  handleChangeFunction: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
+};
+
 const RegisterForm: FC = () => {
   const auth = useAuth();
+  const validator = useValidator();
+
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [otpStatus, setOtpStatus] = useState<boolean>(false);
   const [otpValue, setOtpValue] = useState<string>("");
-  const validator = useValidator();
-  const [formErrors, setFormErrors] = useState<formValidatorErrors[]>();
+  const [formErrors, setFormErrors] = useState<FormValidatorErrors[]>();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,7 +35,7 @@ const RegisterForm: FC = () => {
         .signUp(username, email, password)
         .then((data) => {
           if (data.success) {
-            handleResetForm();
+            //handleResetForm();
             setOtpStatus(true);
           }
         })
@@ -34,7 +43,6 @@ const RegisterForm: FC = () => {
           console.error(error);
         });
     }
-    console.log(`submit : ${username} ${email}`);
   };
 
   const isFormValid = (): boolean => {
@@ -48,9 +56,6 @@ const RegisterForm: FC = () => {
       !isValidPassword.success ||
       !isValidUsername.success
     ) {
-      console.log(
-        `validation errors : \n ${isValid.message} \n ${isValidEmail.message} \n ${isValidPassword.message} \n ${isValidUsername.message}`
-      );
       setFormErrors([
         {
           field: "passwordConfirm",
@@ -69,15 +74,18 @@ const RegisterForm: FC = () => {
           validatorResult: isValidUsername,
         },
       ]);
+      return false;
+    } else {
       return true;
     }
-    return false;
   };
 
   const handleResetForm = () => {
     setUsername("");
     setEmail("");
     setPassword("");
+    setConfirmPassword("");
+    setOtpValue("");
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,6 +115,42 @@ const RegisterForm: FC = () => {
     });
   };
 
+  const formValues: FormValues[] = [
+    {
+      type: "text",
+      name: "username",
+      placeholder: "Username",
+      handleChangeFunction: handleUsernameChange,
+      required: true,
+    },
+    {
+      type: "email",
+      name: "email",
+      placeholder: "Email",
+      handleChangeFunction: handleEmailChange,
+      required: true,
+    },
+    {
+      type: "password",
+      name: "password",
+      placeholder: "Password",
+      handleChangeFunction: handlePasswordChange,
+      required: true,
+    },
+    {
+      type: "password",
+      name: "passwordConfirm",
+      placeholder: "Confirm Password",
+      handleChangeFunction: handleConfirmPasswordChange,
+      required: true,
+    },
+  ];
+
+  const handleResendCode = () => {
+    // TODO: resend code using cognito
+    console.log("resend code");
+  };
+
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-sky-200">
       <div className="form-container border border-black rounded-lg p-6 bg-slate-100">
@@ -114,84 +158,34 @@ const RegisterForm: FC = () => {
         {!otpStatus ? (
           <>
             <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-              <input
-                className="rounded-2xl border border-black p-2"
-                type="text"
-                placeholder="Username"
-                onChange={handleUsernameChange}
-                name="username"
-                required
-              />
-              {formErrors?.map((field) => {
-                if (
-                  field.field === "username" &&
-                  !field.validatorResult.success
-                ) {
-                  return (
-                    <p className="text-red-600">
-                      {field.validatorResult.message}
-                    </p>
-                  );
-                }
-              })}
-              <input
-                className="rounded-2xl border border-black p-2"
-                type="email"
-                placeholder="Email"
-                onChange={handleEmailChange}
-                name="email"
-                required
-              />
-              {formErrors?.map((field) => {
-                if (
-                  field.field === "email" &&
-                  !field.validatorResult.success
-                ) {
-                  return (
-                    <p className="text-red-600">
-                      {field.validatorResult.message}
-                    </p>
-                  );
-                }
-              })}
-              <input
-                className="rounded-2xl border border-black p-2"
-                type="password"
-                placeholder="Password"
-                onChange={handlePasswordChange}
-                name="password"
-              />
-              {formErrors?.map((field) => {
-                if (
-                  field.field === "password" &&
-                  !field.validatorResult.success
-                ) {
-                  return (
-                    <p className="text-red-600">
-                      {field.validatorResult.message}
-                    </p>
-                  );
-                }
-              })}
-              <input
-                className="rounded-2xl border border-black p-2"
-                type="password"
-                placeholder="Password confirmation"
-                onChange={handleConfirmPasswordChange}
-                name="passwordConfirm"
-                required
-              />
-              {formErrors?.map((field) => {
-                if (
-                  field.field === "passwordConfirm" &&
-                  !field.validatorResult.success
-                ) {
-                  return (
-                    <p className="text-red-600">
-                      {field.validatorResult.message}
-                    </p>
-                  );
-                }
+              {formValues.map((field) => {
+                return (
+                  <>
+                    <label className="capitalize" htmlFor={field.name}>
+                      {field.name}
+                    </label>
+                    <input
+                      className="rounded-2xl border border-black p-2"
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      onChange={field.handleChangeFunction}
+                      name={field.name}
+                      required={field.required}
+                    />
+                    {formErrors?.map((errorfield) => {
+                      if (
+                        errorfield.field === field.name &&
+                        !errorfield.validatorResult.success
+                      ) {
+                        return (
+                          <p className="text-red-600">
+                            {errorfield.validatorResult.message}
+                          </p>
+                        );
+                      }
+                    })}
+                  </>
+                );
               })}
               <input
                 className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
@@ -216,6 +210,11 @@ const RegisterForm: FC = () => {
               onChange={(event) => setOtpValue(event.target.value)}
               type="text"
               name="otp"
+            />
+            <input
+              className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
+              value={"Re-send code"}
+              type="button"
             />
             <input
               className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
