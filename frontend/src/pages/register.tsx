@@ -1,30 +1,55 @@
 import { FC, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import useValidator from "../hooks/useValidator";
 
 const RegisterForm: FC = () => {
   const auth = useAuth();
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [otpStatus, setOtpStatus] = useState<boolean>(false);
   const [otpValue, setOtpValue] = useState<string>("");
+  const validator = useValidator();
+  const [validationError, setValidationError] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: add form validation
-    auth
-      .signUp(username, email, password)
-      .then((data) => {
-        if (data.success) {
-          handleResetForm();
-          setOtpStatus(true);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    if (isFormValid()) {
+      auth
+        .signUp(username, email, password)
+        .then((data) => {
+          if (data.success) {
+            handleResetForm();
+            setOtpStatus(true);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
     console.log(`submit : ${username} ${email}`);
+  };
+
+  const isFormValid = (): boolean => {
+    const isValid = validator.passwordMatch(password, confirmPassword);
+    const isValidEmail = validator.emailValidation(email);
+    const isValidPassword = validator.passwordValidation(password);
+    const isValidUsername = validator.lengthValidation(username, 3, 20);
+    if (
+      !isValid.success ||
+      !isValidEmail.success ||
+      !isValidPassword.success ||
+      !isValidUsername.success
+    ) {
+      console.log(
+        `validation errors : \n ${isValid.message} \n ${isValidEmail.message} \n ${isValidPassword.message} \n ${isValidUsername.message}`
+      );
+      // setValidationError(isValid.message)
+      return true;
+    }
+    return false;
   };
 
   const handleResetForm = () => {
@@ -43,6 +68,12 @@ const RegisterForm: FC = () => {
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+  };
+
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(e.target.value);
   };
 
   const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -86,7 +117,7 @@ const RegisterForm: FC = () => {
                 className="rounded-2xl border border-black p-2"
                 type="password"
                 placeholder="Password confirmation"
-                onChange={handlePasswordChange}
+                onChange={handleConfirmPasswordChange}
                 name="passwordConfirm"
               />
               <input
@@ -95,6 +126,9 @@ const RegisterForm: FC = () => {
                 value="Sign up"
               />
             </form>
+            {validationError && (
+              <p className="text-red-600">{validationError}</p>
+            )}
             <div className="mt-6">
               <p>
                 Already have an account ?{" "}
