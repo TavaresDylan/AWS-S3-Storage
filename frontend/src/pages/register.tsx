@@ -1,7 +1,12 @@
 import { FC, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import useValidator from "../hooks/useValidator";
+import useValidator, { ValidatorResult } from "../hooks/useValidator";
+
+type formValidatorErrors = {
+  field: string;
+  validatorResult: ValidatorResult;
+};
 
 const RegisterForm: FC = () => {
   const auth = useAuth();
@@ -12,7 +17,7 @@ const RegisterForm: FC = () => {
   const [otpStatus, setOtpStatus] = useState<boolean>(false);
   const [otpValue, setOtpValue] = useState<string>("");
   const validator = useValidator();
-  const [validationError, setValidationError] = useState<string>("");
+  const [formErrors, setFormErrors] = useState<formValidatorErrors[]>();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,7 +51,24 @@ const RegisterForm: FC = () => {
       console.log(
         `validation errors : \n ${isValid.message} \n ${isValidEmail.message} \n ${isValidPassword.message} \n ${isValidUsername.message}`
       );
-      // setValidationError(isValid.message)
+      setFormErrors([
+        {
+          field: "passwordConfirm",
+          validatorResult: isValid,
+        },
+        {
+          field: "email",
+          validatorResult: isValidEmail,
+        },
+        {
+          field: "password",
+          validatorResult: isValidPassword,
+        },
+        {
+          field: "username",
+          validatorResult: isValidUsername,
+        },
+      ]);
       return true;
     }
     return false;
@@ -98,14 +120,40 @@ const RegisterForm: FC = () => {
                 placeholder="Username"
                 onChange={handleUsernameChange}
                 name="username"
+                required
               />
+              {formErrors?.map((field) => {
+                if (
+                  field.field === "username" &&
+                  !field.validatorResult.success
+                ) {
+                  return (
+                    <p className="text-red-600">
+                      {field.validatorResult.message}
+                    </p>
+                  );
+                }
+              })}
               <input
                 className="rounded-2xl border border-black p-2"
                 type="email"
                 placeholder="Email"
                 onChange={handleEmailChange}
                 name="email"
+                required
               />
+              {formErrors?.map((field) => {
+                if (
+                  field.field === "email" &&
+                  !field.validatorResult.success
+                ) {
+                  return (
+                    <p className="text-red-600">
+                      {field.validatorResult.message}
+                    </p>
+                  );
+                }
+              })}
               <input
                 className="rounded-2xl border border-black p-2"
                 type="password"
@@ -113,22 +161,44 @@ const RegisterForm: FC = () => {
                 onChange={handlePasswordChange}
                 name="password"
               />
+              {formErrors?.map((field) => {
+                if (
+                  field.field === "password" &&
+                  !field.validatorResult.success
+                ) {
+                  return (
+                    <p className="text-red-600">
+                      {field.validatorResult.message}
+                    </p>
+                  );
+                }
+              })}
               <input
                 className="rounded-2xl border border-black p-2"
                 type="password"
                 placeholder="Password confirmation"
                 onChange={handleConfirmPasswordChange}
                 name="passwordConfirm"
+                required
               />
+              {formErrors?.map((field) => {
+                if (
+                  field.field === "passwordConfirm" &&
+                  !field.validatorResult.success
+                ) {
+                  return (
+                    <p className="text-red-600">
+                      {field.validatorResult.message}
+                    </p>
+                  );
+                }
+              })}
               <input
                 className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
                 type="submit"
                 value="Sign up"
               />
             </form>
-            {validationError && (
-              <p className="text-red-600">{validationError}</p>
-            )}
             <div className="mt-6">
               <p>
                 Already have an account ?{" "}

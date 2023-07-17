@@ -45,14 +45,14 @@ const useValidator = (): UseValidator => {
       } else {
         return {
           success: false,
-          message: "value must be at least 8 characters long",
+          message: `must be at least ${minLength} characters long and at most ${maxLength} characters long`,
         };
       }
     } else if (minLength !== undefined && maxLength === undefined) {
-      if (value.length > minLength) {
+      if (value.length >= minLength) {
         return {
           success: false,
-          message: "value must be at least 8 characters long",
+          message: `must be at least ${minLength} characters long`,
         };
       } else {
         return {
@@ -61,10 +61,10 @@ const useValidator = (): UseValidator => {
         };
       }
     } else if (minLength === undefined && maxLength !== undefined) {
-      if (value.length < maxLength) {
+      if (value.length <= maxLength) {
         return {
           success: false,
-          message: "value must be at least 8 characters long",
+          message: `must be at most ${maxLength} characters long`,
         };
       } else {
         return {
