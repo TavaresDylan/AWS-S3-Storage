@@ -4,25 +4,34 @@ import { useNavigate } from "react-router-dom";
 
 type AccountConfirmationFormProps = {
   email: string;
+  to: string;
 };
 
 const AccountConfirmationForm: FC<AccountConfirmationFormProps> = ({
   email,
+  to,
 }) => {
   const navigate = useNavigate();
   const auth = useAuth();
 
   const [otpValue, setOtpValue] = useState("");
+  const [error, setError] = useState<string>("");
 
   const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    auth.confirmSignUp(email, otpValue).then((data) => {
-      if (data.success) {
-        navigate("/login");
-      } else {
-        console.log("error confirm signup : ", data);
-      }
-    });
+    auth
+      .confirmSignUp(email, otpValue)
+      .then((data) => {
+        if (data.success) {
+          navigate(to);
+        } else {
+          console.log("error confirm signup : ", data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setError(error.message);
+      });
   };
 
   const handleResendConfirmationCode = () => {
@@ -40,7 +49,9 @@ const AccountConfirmationForm: FC<AccountConfirmationFormProps> = ({
           onChange={(event) => setOtpValue(event.target.value)}
           type="text"
           name="otp"
+          required
         />
+        <p className="text-red-500">{error}</p>
         <input
           className="rounded-2xl text-white p-2 bg-orange-500 hover:bg-orange-600"
           value={"Re-send code"}
