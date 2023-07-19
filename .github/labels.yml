@@ -1,0 +1,75 @@
+---
+# Common labels
+- name: bug 👾
+  description: Something isn't working.
+  color: d73a4a
+- name: WIP 🏗️
+  description: Work in progress.
+  color: ff0000
+- name: enhancement
+  description: New feature or request
+  color: a2eeef
+- name: tech-debt
+  description: Tech debt
+  color: ADE720
+- name: question ❓
+  description: Further information is requested
+  color: d876e3
+- name: documentation 📖
+  description: Improvements or additions to documentation
+  color: 6F79AF
+- name: 🔥 HIGHT PRIORITY 🔥
+  desciption: This issue must be done before anything else.
+  color: D93F0B
+- name: config 🛠️
+  description: Configuration related changes.
+  color: 0E8A16
+- name: refactor
+  description: Refactoring code.
+  color: 390822
+- name: test 🧪
+  description: Adding or updating tests.
+  color: 0075ca
+- name: holding 🔒
+  description: This issue is on hold.
+  color: 000000
+- name: archive 🗄️
+  description: This issue is archived.
+  color: 000000
+- name: AWS ☁️
+  description: AWS related issue.
+  color: FF9900
+- name : epic ♕
+  description: This issue is an epic.
+  color: 5319E7
+
+# Scope labels
+- name: scope/ci
+  description: Improvements or additions to CI.
+  color: FBCA04
+- name: scope/frontend
+  description: Improvements or additions to Frontend.
+  color: 0E8A16
+- name: scope/backend
+  description: Improvement or addition to Backend.
+  color: 390822
+
+# Sizing labels
+- name: size/XS
+  description: Denotes a PR that changes 0-9 lines.
+  color: 009900
+- name: size/S
+  description: Denotes a PR that changes 10-29 lines.
+  color: 77bb00
+- name: size/M
+  description: Denotes a PR that changes 30-99 lines.
+  color: eebb00
+- name: size/L
+  description: Denotes a PR that changes 100-499 lines.
+  color: ee9900
+- name: size/XL
+  description: Denotes a PR that changes 500-999 lines.
+  color: ee5500
+- name: size/XXL
+  description: Denotes a PR that changes 1000+ lines.
+  color: ee0000
