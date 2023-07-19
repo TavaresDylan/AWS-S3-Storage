@@ -1,0 +1,7 @@
+---
+WIP 🏗️:
+  title: '.*WIP.*'
+holding 🔒:
+  title: '^(?:\[HOLD\]).*'
+archive 🗄️:
+  title: '^(?:\[ARCHIVE\]).*'

@@ -1,0 +1,7 @@
+---
+scope/ci:
+  - .github/**/*
+scope/backend:
+  - bakcend/src/main/java/**/*
+scope/frontend:
+  - frontend/src/**/*
