@@ -1,6 +1,6 @@
 ---
 name: Backend issue
-description: Issue about the Backend application
+about: Issue about the Backend application
 title: "[Backend]: "
 labels: ["scope/backend"]
 

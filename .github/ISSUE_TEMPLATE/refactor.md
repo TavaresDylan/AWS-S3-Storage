@@ -1,6 +1,6 @@
 ---
 name: Refactor issue
-description: Issue about refactoring some code
+about: Issue about refactoring some code
 title: "[Refactor]: "
 labels: ["refactor"]
 
